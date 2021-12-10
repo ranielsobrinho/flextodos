@@ -21,6 +21,31 @@ class UserController {
         }
     }
 
+    async getOneUser(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
+        try{
+            const { id } = req.params
+            const userRepository = getRepository(User)
+            const user = await userRepository.find({where: {id}})
+
+            if(user.length === 0){
+                return res.status(404).json({
+                    status: ResponseStatus.NOT_FOUND,
+                    message: 'Seems like there is no user with this id.'
+                })
+            }
+
+            return res.json({
+                status: ResponseStatus.OK,
+                data: user
+            })
+        }catch(error){
+            return res.status(500).json({
+                status: ResponseStatus.INTERNAL_SERVER_ERROR,
+                message: 'An internal error has happened.'
+            })
+        }
+    }
+
     async createUser(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
         try{
             const userRepository = getRepository(User)
