@@ -57,8 +57,7 @@ class UserController {
         }catch(error){
             return res.status(500).json({
                 status: ResponseStatus.INTERNAL_SERVER_ERROR,
-                message: 'An internal server error has happened.',
-                errors: error
+                message: 'An internal server error has happened.'
             })
         }
     }
@@ -72,6 +71,24 @@ class UserController {
             return res.json({
                 status: ResponseStatus.OK,
                 data: updated
+            })
+        }catch(error){
+            return res.status(500).json({
+                status: ResponseStatus.INTERNAL_SERVER_ERROR,
+                message: 'An internal server error has happened.'
+            })
+        }
+    }
+
+    async deleteUser(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
+        try{
+            const { id } = req.params
+            const userRepository = getRepository(User)
+            const deleteUser = await userRepository.delete(id)
+            
+            return res.json({
+                status: ResponseStatus.OK,
+                message: 'User deleted successfully.'
             })
         }catch(error){
             return res.status(500).json({
