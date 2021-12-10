@@ -1,7 +1,7 @@
 import {Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany} from "typeorm";
 import { Todo } from './Todo'
 
-@Entity()
+@Entity("users")
 export class User {
 
     @PrimaryGeneratedColumn()
