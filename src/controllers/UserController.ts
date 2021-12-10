@@ -62,6 +62,24 @@ class UserController {
             })
         }
     }
+
+    async updateUser(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
+        try{
+            const { id } = req.params
+            const userRepository = getRepository(User)
+            const updated = await userRepository.update(id, req.body)
+
+            return res.json({
+                status: ResponseStatus.OK,
+                data: updated
+            })
+        }catch(error){
+            return res.status(500).json({
+                status: ResponseStatus.INTERNAL_SERVER_ERROR,
+                message: 'An internal server error has happened.'
+            })
+        }
+    }
 }
 
 export default new UserController()
