@@ -1,10 +1,10 @@
 import {Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany} from "typeorm";
 import { Todo } from './Todo'
 
-@Entity("users")
+@Entity('users')
 export class User {
 
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('increment')
     id: number;
 
     @Column()
