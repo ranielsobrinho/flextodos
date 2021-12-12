@@ -67,6 +67,16 @@ class TodoController{
     try{
       const { id } = req.params
       const todoRepository = getRepository(Todo)
+
+      const todo = await todoRepository.findOne(id)
+
+      if(!todo){
+        return res.status(404).json({
+          status: ResponseStatus.NOT_FOUND,
+          message: 'No todo with this id.'
+        })
+      }
+
       const updatedTodo = await todoRepository.update(id, req.body)
 
       return res.json({
