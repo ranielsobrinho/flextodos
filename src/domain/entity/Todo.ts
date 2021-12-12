@@ -1,9 +1,9 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
 
-@Entity("todos")
+@Entity('todos')
 export class Todo {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column()
@@ -15,6 +15,9 @@ export class Todo {
   @CreateDateColumn()
   updated_at: Date;
 
+  @JoinColumn({
+    name: 'userId'
+  })
   @ManyToOne(() => User, (user) => user.todos)
   userId: User
 }
