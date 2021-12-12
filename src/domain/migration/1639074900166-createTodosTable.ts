@@ -11,6 +11,7 @@ export class createTodosTable1639074900166 implements MigrationInterface {
                     type: 'int',
                     isGenerated: true,
                     generationStrategy: 'increment',
+                    isPrimary: true,
                     isUnique: true
                 },
                 {
