@@ -90,4 +90,31 @@ class TodoController{
       })
     }
   }
+
+  async deleteTodo(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
+    try{
+      const { id } = req.params
+      const todoRepository = getRepository(Todo)
+
+      const todo = await todoRepository.findOne(id)
+      if(!todo){
+        return res.status(404).json({
+          status: ResponseStatus.NOT_FOUND,
+          message: 'No todo with this id.'
+        })
+      }
+
+      const deleted = await todoRepository.delete(id)
+
+      return res.json({
+        status: ResponseStatus.OK,
+        message: 'Deleted successfully'
+      })
+    }catch(error) {
+      return res.status(500).json({
+        status: ResponseStatus.INTERNAL_SERVER_ERROR,
+        message: 'An internal error has happened.'
+      })
+    }
+  }
 }
