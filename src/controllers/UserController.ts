@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { getRepository } from "typeorm"
 import { User } from "../domain/entity/User"
 import { ResponseStatus, IResponse } from "../utils/service"
+import * as bcrypt from 'bcrypt'
 
 class UserController {
     async getUsers(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
@@ -48,8 +49,13 @@ class UserController {
 
     async createUser(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
         try{
+            const { username, name, email } = req.body
             const userRepository = getRepository(User)
-            const created = await userRepository.save(req.body)
+
+            const salt = bcrypt.genSaltSync(10)
+            const password = bcrypt.hashSync(req.body.password, salt)
+
+            const created = await userRepository.save({username, password, name, email})
             return res.json({
                 status: ResponseStatus.OK,
                 data: created
@@ -57,7 +63,7 @@ class UserController {
         }catch(error){
             return res.status(500).json({
                 status: ResponseStatus.INTERNAL_SERVER_ERROR,
-                message: 'An internal server error has happened.'
+                errors: error
             })
         }
     }
