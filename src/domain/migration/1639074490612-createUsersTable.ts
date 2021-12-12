@@ -32,7 +32,7 @@ export class createUsersTable1639074490612 implements MigrationInterface {
                 },
                 {
                     name: 'password',
-                    type: 'varchar(50)',
+                    type: 'varchar',
                     isNullable: false
                 },
                 {
