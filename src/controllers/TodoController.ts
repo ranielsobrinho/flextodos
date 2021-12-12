@@ -62,4 +62,22 @@ class TodoController{
       })
     }
   }
+
+  async updateTodo(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
+    try{
+      const { id } = req.params
+      const todoRepository = getRepository(Todo)
+      const updatedTodo = await todoRepository.update(id, req.body)
+
+      return res.json({
+        status: ResponseStatus.OK,
+        data: updatedTodo
+      })
+    }catch(error){
+      return res.status(500).json({
+        status: ResponseStatus.INTERNAL_SERVER_ERROR,
+        message: 'An internal error has happened.'
+      })
+    }
+  }
 }
