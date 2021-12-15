@@ -14,7 +14,7 @@ routes.delete('/users/:id', authMiddleware.auth, UserController.deleteUser)
 routes.get('/todos', authMiddleware.auth , TodoController.getTodo)
 routes.get('/todos/:id', authMiddleware.auth, TodoController.getOneTodo)
 routes.post('/todos', authMiddleware.auth, validate(todoSchema), TodoController.createTodo)
-routes.put('/todos/:id', authMiddleware.auth, validate(todoSchema), TodoController.updateTodo)
+routes.put('/todos/:id', authMiddleware.auth, TodoController.updateTodo)
 routes.delete('/todos/:id', authMiddleware.auth, TodoController.deleteTodo)
 
 routes.post('/auth', validate(authSchema), AuthController.authenticate)
