@@ -4,17 +4,18 @@ import { User } from "../domain/entity/User"
 import { ResponseStatus, IResponse } from "../utils/service"
 import * as bcrypt from 'bcrypt'
 import UserService from "../services/UserService"
+import { ValidationError } from "yup"
 
 class UserController {
     async getUsers(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
-        try{
+        try {
             const allUsers = await UserService.getAll()
 
             return res.json({
                 status: ResponseStatus.OK,
                 data: allUsers
             })
-        } catch(error) {
+        } catch (error) {
             return res.status(500).json({
                 status: ResponseStatus.INTERNAL_SERVER_ERROR,
                 message: 'An internal server error has happened.'
@@ -23,11 +24,11 @@ class UserController {
     }
 
     async getOneUser(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
-        try{
+        try {
             const { id } = req.params
             const user = await UserService.getOne(id)
 
-            if(user instanceof Error){
+            if (user instanceof Error) {
                 return res.status(404).json({
                     status: ResponseStatus.NOT_FOUND,
                     message: user.message
@@ -38,7 +39,7 @@ class UserController {
                 status: ResponseStatus.OK,
                 data: user
             })
-        }catch(error){
+        } catch (error) {
             return res.status(500).json({
                 status: ResponseStatus.INTERNAL_SERVER_ERROR,
                 message: 'An internal error has happened.'
@@ -47,19 +48,34 @@ class UserController {
     }
 
     async createUser(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
-        try{
-            const { username, name, email } = req.body
-            const userRepository = getRepository(User)
+        try {
+            const { username, name, email, password } = req.body
 
-            const salt = bcrypt.genSaltSync(10)
-            const password = bcrypt.hashSync(req.body.password, salt)
+            const created = await UserService.createUser({
+                username,
+                name,
+                email,
+                password
+            })
 
-            const created = await userRepository.save({username, password, name, email})
+            if (created instanceof Error) {
+                return res.status(400).json({
+                    status: ResponseStatus.BAD_REQUEST,
+                    message: created.message
+                })
+            }
+
             return res.json({
                 status: ResponseStatus.OK,
                 data: created
             })
-        }catch(error){
+        } catch (error) {
+            if(error instanceof ValidationError){
+                return res.status(400).json({
+                    status: ResponseStatus.BAD_REQUEST,
+                    errors: error.errors
+                })
+            }
             return res.status(500).json({
                 status: ResponseStatus.INTERNAL_SERVER_ERROR,
                 errors: error
@@ -68,16 +84,23 @@ class UserController {
     }
 
     async updateUser(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
-        try{
+        try {
             const { id } = req.params
-            const userRepository = getRepository(User)
-            const updated = await userRepository.update(id, req.body)
+            const { username, name, email } = req.body
+            const updated = await UserService.updateUser(id, username, name, email)
+
+            if(updated instanceof Error){
+                return res.status(400).json({
+                    status: ResponseStatus.BAD_REQUEST,
+                    message: updated.message
+                })
+            }
 
             return res.json({
                 status: ResponseStatus.OK,
                 data: updated
             })
-        }catch(error){
+        } catch (error) {
             return res.status(500).json({
                 status: ResponseStatus.INTERNAL_SERVER_ERROR,
                 message: 'An internal server error has happened.'
@@ -86,16 +109,16 @@ class UserController {
     }
 
     async deleteUser(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
-        try{
+        try {
             const { id } = req.params
             const userRepository = getRepository(User)
             const deleteUser = await userRepository.delete(id)
-            
+
             return res.json({
                 status: ResponseStatus.OK,
                 message: 'User deleted successfully.'
             })
-        }catch(error){
+        } catch (error) {
             return res.status(500).json({
                 status: ResponseStatus.INTERNAL_SERVER_ERROR,
                 message: 'An internal server error has happened.'
