@@ -3,12 +3,12 @@ import { getRepository } from "typeorm"
 import { User } from "../domain/entity/User"
 import { ResponseStatus, IResponse } from "../utils/service"
 import * as bcrypt from 'bcrypt'
+import UserService from "../services/UserService"
 
 class UserController {
     async getUsers(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
         try{
-            const userRepository = getRepository(User)
-            const allUsers = await userRepository.find()
+            const allUsers = await UserService.getAll()
 
             return res.json({
                 status: ResponseStatus.OK,
@@ -25,13 +25,12 @@ class UserController {
     async getOneUser(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
         try{
             const { id } = req.params
-            const userRepository = getRepository(User)
-            const user = await userRepository.find({where: {id}})
+            const user = await UserService.getOne(id)
 
-            if(user.length === 0){
+            if(user instanceof Error){
                 return res.status(404).json({
                     status: ResponseStatus.NOT_FOUND,
-                    message: 'Seems like there is no user with this id.'
+                    message: user.message
                 })
             }
 
