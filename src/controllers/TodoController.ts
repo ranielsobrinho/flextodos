@@ -1,13 +1,12 @@
 import { Request, Response } from 'express'
-import { getRepository } from 'typeorm'
 import { IResponse, ResponseStatus } from '../utils/service'
-import { Todo } from '../domain/entity/Todo'
+import TodosService from '../services/TodosService'
+import { ValidationError } from 'yup'
 
 class TodoController{
   async getTodo(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
     try{
-      const todoRepository = getRepository(Todo)
-      const todos = await todoRepository.find()
+      const todos = await TodosService.getAll()
 
       return res.json({
         status: ResponseStatus.OK,
@@ -24,13 +23,12 @@ class TodoController{
   async getOneTodo(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
     try{
       const { id } = req.params
-      const todoRepository = getRepository(Todo)
-      const todo = await todoRepository.findOne(id)
+      const todo = await TodosService.getOne(id)
 
-      if(!todo){
-        return res.status(404).json({
-          status: ResponseStatus.NOT_FOUND,
-          message: 'No todo with this id.'
+      if(todo instanceof Error){
+        return res.status(400).json({
+          status: ResponseStatus.BAD_REQUEST,
+          message: todo.message
         })
       }
 
@@ -48,14 +46,20 @@ class TodoController{
 
   async createTodo(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
     try{
-      const todoRepository = getRepository(Todo)
-      const createdTodo = await todoRepository.save(req.body)
+      const {content, userId} = req.body
+      const createdTodo = await TodosService.create(content, userId)
 
       return res.json({
         status: ResponseStatus.OK,
         data: createdTodo
       })
     }catch (error){
+      if(error instanceof ValidationError){
+        return res.status(400).json({
+          status: ResponseStatus.BAD_REQUEST,
+          errors: error.errors
+        })
+      }
       return res.status(500).json({
         status: ResponseStatus.INTERNAL_SERVER_ERROR,
         message: 'An internal error has happened.'
@@ -66,24 +70,27 @@ class TodoController{
   async updateTodo(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
     try{
       const { id } = req.params
-      const todoRepository = getRepository(Todo)
+      const { content } = req.body
+      const updatedTodo = await TodosService.update(id, content)
 
-      const todo = await todoRepository.findOne(id)
-
-      if(!todo){
-        return res.status(404).json({
+      if(updatedTodo instanceof Error){
+        return res.status(400).json({
           status: ResponseStatus.NOT_FOUND,
-          message: 'No todo with this id.'
+          message: updatedTodo.message
         })
       }
-
-      const updatedTodo = await todoRepository.update(id, req.body)
 
       return res.json({
         status: ResponseStatus.OK,
         data: updatedTodo
       })
     }catch(error){
+      if(error instanceof ValidationError){
+        return res.status(400).json({
+          status: ResponseStatus.BAD_REQUEST,
+          errors: error.errors
+        })
+      }
       return res.status(500).json({
         status: ResponseStatus.INTERNAL_SERVER_ERROR,
         message: 'An internal error has happened.'
@@ -94,17 +101,14 @@ class TodoController{
   async deleteTodo(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
     try{
       const { id } = req.params
-      const todoRepository = getRepository(Todo)
+      const todo = await TodosService.delete(id)
 
-      const todo = await todoRepository.findOne(id)
-      if(!todo){
+      if(todo instanceof Error){
         return res.status(404).json({
           status: ResponseStatus.NOT_FOUND,
-          message: 'No todo with this id.'
+          message: todo.message
         })
       }
-
-      const deleted = await todoRepository.delete(id)
 
       return res.json({
         status: ResponseStatus.OK,
