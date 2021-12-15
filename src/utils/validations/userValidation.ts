@@ -7,4 +7,13 @@ const userSchema = yup.object({
   password: yup.string().min(8).required()
 })
 
-export default userSchema
+const updateUserSchema = yup.object({
+  name: yup.string().min(5).max(100).required(),
+  username: yup.string().min(5).max(50).required(),
+  email: yup.string().email().required()
+})
+
+export {
+  userSchema,
+  updateUserSchema
+}
