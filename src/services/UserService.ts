@@ -60,6 +60,15 @@ class UserService {
 
     return updateUser
   }
+
+  async deleteUser(id: string){
+    const repo = getRepository(User)
+    if(! await repo.findOne(id)){
+      return new Error('This user does not exists.')
+    }
+
+    await repo.delete(id)
+  }
 }
 
 export default new UserService()
