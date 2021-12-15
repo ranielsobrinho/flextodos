@@ -101,6 +101,12 @@ class UserController {
                 data: updated
             })
         } catch (error) {
+            if(error instanceof ValidationError){
+                return res.status(400).json({
+                    status: ResponseStatus.BAD_REQUEST,
+                    errors: error.errors
+                })
+            }
             return res.status(500).json({
                 status: ResponseStatus.INTERNAL_SERVER_ERROR,
                 message: 'An internal server error has happened.'
@@ -111,8 +117,14 @@ class UserController {
     async deleteUser(req: Request, res: Response<IResponse>): Promise<Response<IResponse>> {
         try {
             const { id } = req.params
-            const userRepository = getRepository(User)
-            const deleteUser = await userRepository.delete(id)
+            const deleteUser = await UserService.deleteUser(id)
+
+            if(deleteUser instanceof Error){
+                return res.status(400).json({
+                    status: ResponseStatus.BAD_REQUEST,
+                    message: deleteUser.message
+                })
+            }
 
             return res.json({
                 status: ResponseStatus.OK,
