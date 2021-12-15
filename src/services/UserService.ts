@@ -29,7 +29,7 @@ class UserService {
     return user
   }
 
-  async create({username, name, email, password}: UserRequest): Promise<User | Error>{
+  async createUser({username, name, email, password}: UserRequest): Promise<User | Error>{
     const repo = getRepository(User)
     if(await repo.findOne({username})){
       return new Error('This user already exists.')
@@ -45,6 +45,20 @@ class UserService {
     await repo.save(user)
 
     return user
+  }
+
+  async updateUser(id:string, username: string, name: string, email: string){
+    const repo = getRepository(User)
+    if(! await repo.findOne(id)){
+      return new Error('This user does not exists.')
+    }
+    const updateUser = repo.update(id, {
+      username,
+      name,
+      email
+    })
+
+    return updateUser
   }
 }
 
