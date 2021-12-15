@@ -1,14 +1,14 @@
 import { Router } from "express"
 import { TodoController, UserController, AuthController } from "./controllers/"
 import { authMiddleware, validate } from "./middlewares"
-import { todoSchema, userSchema, authSchema } from "./utils/validations"
+import { todoSchema, userSchema, authSchema, updateUserSchema } from "./utils/validations"
 
 const routes = Router()
 
 routes.get('/users', UserController.getUsers)
 routes.get('/users/:id', UserController.getOneUser)
 routes.post('/users', validate(userSchema),UserController.createUser)
-routes.put('/users/:id', authMiddleware.auth, validate(userSchema), UserController.updateUser)
+routes.put('/users/:id', authMiddleware.auth, validate(updateUserSchema), UserController.updateUser)
 routes.delete('/users/:id', authMiddleware.auth, UserController.deleteUser)
 
 routes.get('/todos', authMiddleware.auth , TodoController.getTodo)
