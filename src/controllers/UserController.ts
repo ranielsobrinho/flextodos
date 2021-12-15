@@ -1,8 +1,5 @@
 import { Request, Response } from "express"
-import { getRepository } from "typeorm"
-import { User } from "../domain/entity/User"
 import { ResponseStatus, IResponse } from "../utils/service"
-import * as bcrypt from 'bcrypt'
 import UserService from "../services/UserService"
 import { ValidationError } from "yup"
 
