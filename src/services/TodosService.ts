@@ -42,9 +42,8 @@ class TodosServices {
 
   async update(id: string, content: string){
     const repo = getRepository(Todo)
-    const userRepo = getRepository(User)
 
-    if(! await userRepo.findOne(id)){
+    if(! await repo.findOne(id)){
       return new Error("This user does not exists.")
     }
 
