@@ -1,22 +1,53 @@
-import { Router } from "express"
-import { TodoController, UserController, AuthController } from "./controllers/"
-import { authMiddleware, validate } from "./middlewares"
-import { todoSchema, userSchema, authSchema, updateUserSchema } from "./utils/validations"
+import { Router } from "express";
+import { AuthController } from "./controllers/";
+import {
+  GetUsers,
+  GetOneUser,
+  CreateUser,
+  UpdateUser,
+  DeleteUser,
+} from "./controllers/UserController/";
 
-const routes = Router()
+import {
+  GetAll,
+  GetOne,
+  CreateTodo,
+  UpdateTodo,
+  DeleteTodo,
+} from "./controllers/TodoController/";
+import {
+  todoSchema,
+  userSchema,
+  authSchema,
+  updateUserSchema,
+} from "./utils/validations";
 
-routes.get('/users', UserController.getUsers)
-routes.get('/users/:id', UserController.getOneUser)
-routes.post('/users', validate(userSchema),UserController.createUser)
-routes.put('/users/:id', authMiddleware.auth, validate(updateUserSchema), UserController.updateUser)
-routes.delete('/users/:id', authMiddleware.auth, UserController.deleteUser)
+import { authMiddleware, validate } from "./middlewares";
 
-routes.get('/todos', authMiddleware.auth , TodoController.getTodo)
-routes.get('/todos/:id', authMiddleware.auth, TodoController.getOneTodo)
-routes.post('/todos', authMiddleware.auth, validate(todoSchema), TodoController.createTodo)
-routes.put('/todos/:id', authMiddleware.auth, TodoController.updateTodo)
-routes.delete('/todos/:id', authMiddleware.auth, TodoController.deleteTodo)
+const routes = Router();
 
-routes.post('/auth', validate(authSchema), AuthController.authenticate)
+routes.get("/users", GetUsers.execute);
+routes.get("/users/:id", GetOneUser.execute);
+routes.post("/users", validate(userSchema), CreateUser.execute);
+routes.put(
+  "/users/:id",
+  authMiddleware.auth,
+  validate(updateUserSchema),
+  UpdateUser.execute
+);
+routes.delete("/users/:id", authMiddleware.auth, DeleteUser.execute);
 
-export default routes
+routes.get("/todos", authMiddleware.auth, GetAll.execute);
+routes.get("/todos/:id", GetOne.execute);
+routes.post(
+  "/todos",
+  authMiddleware.auth,
+  validate(todoSchema),
+  CreateTodo.execute
+);
+routes.put("/todos/:id", authMiddleware.auth, UpdateTodo.execute);
+routes.delete("/todos/:id", authMiddleware.auth, DeleteTodo.execute);
+
+routes.post("/auth", validate(authSchema), AuthController.authenticate);
+
+export default routes;
